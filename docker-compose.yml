@@ -16,7 +16,6 @@ services:
 
   catalogs:
     image: ${ECR_REGISTRY}/catalogs:latest
-    build: ../catalogs
     container_name: catalogs
     restart: always
     environment:
@@ -30,7 +29,6 @@ services:
 
   sales-notes:
     image: ${ECR_REGISTRY}/sales-notes:latest
-    build: ../sales-notes
     container_name: sales-notes
     restart: always
     environment:
@@ -48,7 +46,6 @@ services:
 
   mail-notifier:
     image: ${ECR_REGISTRY}/mail-notifier:latest
-    build: ../mail-notifier
     container_name: mail-notifier
     restart: always
     environment:
