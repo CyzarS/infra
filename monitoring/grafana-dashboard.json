@@ -1,0 +1,51 @@
+{
+  "title": "Notas de Venta - Observabilidad",
+  "schemaVersion": 36,
+  "version": 1,
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Latencia p50 / p90 / p99 (sales-notes)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{env=\"production\"}[5m])) by (le))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{env=\"production\"}[5m])) by (le))",
+          "legendFormat": "p90",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{env=\"production\"}[5m])) by (le))",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "id": 1
+    },
+    {
+      "type": "graph",
+      "title": "Comportamiento HTTP (2xx / 4xx / 5xx)",
+      "targets": [
+        {
+          "expr": "sum(rate(http_responses_total{code=~\"2..\", env=\"production\"}[5m]))",
+          "legendFormat": "2xx",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(http_responses_total{code=~\"4..\", env=\"production\"}[5m]))",
+          "legendFormat": "4xx",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(http_responses_total{code=~\"5..\", env=\"production\"}[5m]))",
+          "legendFormat": "5xx",
+          "refId": "C"
+        }
+      ],
+      "id": 2
+    }
+  ]
+}

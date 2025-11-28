@@ -1,0 +1,25 @@
+groups:
+- name: performance-rules
+  rules:
+  - alert: HighP90Latency
+    expr: |
+      histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{env="production"}[5m])) by (le)) > 1
+    for: 5m
+    labels:
+      severity: critical
+      environment: production
+    annotations:
+      summary: "p90 de latencia > 1s en producción"
+      description: "La latencia p90 supera 1 segundo por más de 5 minutos."
+
+  - alert: High5xxRate
+    expr: |
+      sum(rate(http_responses_total{code=~"5..", env="production"}[5m])) 
+        / sum(rate(http_responses_total{env="production"}[5m])) > 0.01
+    for: 10m
+    labels:
+      severity: warning
+      environment: production
+    annotations:
+      summary: "Tasa de 5xx superior al 1% en producción"
+      description: "Más del 1% de las respuestas son 5xx en los últimos 10 minutos."

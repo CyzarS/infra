@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: app123
+      POSTGRES_DB: notasdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  catalogs:
+    image: ${ECR_REGISTRY}/catalogs:latest
+    build: ../catalogs
+    container_name: catalogs
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://appuser:app123@db:5432/notasdb
+      - PORT=3001
+      - ENV=local
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+
+  sales-notes:
+    image: ${ECR_REGISTRY}/sales-notes:latest
+    build: ../sales-notes
+    container_name: sales-notes
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://appuser:app123@db:5432/notasdb
+      - PORT=3002
+      - AWS_REGION=us-east-1
+      - S3_BUCKET=TU-EXPEDIENTE-esi3898k-examen1
+      - MAIL_NOTIFIER_URL=http://mail-notifier:3003
+      - ENV=local
+    depends_on:
+      - db
+      - mail-notifier
+    ports:
+      - "3002:3002"
+
+  mail-notifier:
+    image: ${ECR_REGISTRY}/mail-notifier:latest
+    build: ../mail-notifier
+    container_name: mail-notifier
+    restart: always
+    environment:
+      - PORT=3003
+      - AWS_REGION=us-east-1
+      - S3_BUCKET=TU-EXPEDIENTE-esi3898k-examen1
+      - SES_FROM=correo-verificado@dominio.com
+      - SNS_TOPIC_ARN=arn:aws:sns:us-east-1:579533855463:Examen
+      - SALES_NOTES_PUBLIC_URL=http://localhost:3002/notas
+      - ENV=local
+    ports:
+      - "3003:3003"
